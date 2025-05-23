@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Green Pharma</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        header { background: #2e8b57; color: white; padding: 10px; text-align: center; }
+        section { margin-top: 20px; }
+        input, button { padding: 10px; margin: 5px 0; width: 100%; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #2e8b57; color: white; }
+    </style>
+</head>
+<body>
+    <header><h1>Green Pharma Medicine Stock</h1></header>
+    <section>
+        <h2>Login</h2>
+        <input type="text" id="username" placeholder="Username" />
+        <input type="password" id="password" placeholder="Password" />
+        <button onclick="login()">Login</button>
+        <p id="message" style="color:red;"></p>
+    </section>
+    <section id="stock-section" style="display:none;">
+        <h2>Medicine Stock</h2>
+        <button onclick="logout()">Logout</button>
+        <table id="stock-table">
+            <thead>
+                <tr><th>Name</th><th>Quantity</th><th>Price</th></tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <h3>Add Medicine</h3>
+        <input type="text" id="med-name" placeholder="Medicine Name" />
+        <input type="number" id="med-qty" placeholder="Quantity" />
+        <input type="number" id="med-price" placeholder="Price" step="0.01" />
+        <button onclick="addMedicine()">Add</button>
+    </section>
+    <script>
+        const adminUser = "admin";
+        const adminPass = "greenpharma@123";
+        let medicines = JSON.parse(localStorage.getItem("medicines") || "[]");
+        function login() {
+            const user = document.getElementById("username").value;
+            const pass = document.getElementById("password").value;
+            if (user === adminUser && pass === adminPass) {
+                document.getElementById("message").textContent = "";
+                document.getElementById("stock-section").style.display = "block";
+                document.querySelector("section:nth-child(1)").style.display = "none";
+                renderStock();
+            } else {
+                document.getElementById("message").textContent = "Invalid credentials!";
+            }
+        }
+        function logout() {
+            document.getElementById("stock-section").style.display = "none";
+            document.querySelector("section:nth-child(1)").style.display = "block";
+            document.getElementById("username").value = "";
+            document.getElementById("password").value = "";
+        }
+        function renderStock() {
+            const tbody = document.querySelector("#stock-table tbody");
+            tbody.innerHTML = "";
+            medicines.forEach(med => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `<td>${med.name}</td><td>${med.qty}</td><td>$${med.price.toFixed(2)}</td>`;
+                tbody.appendChild(tr);
+            });
+        }
+        function addMedicine() {
+            const name = document.getElementById("med-name").value.trim();
+            const qty = parseInt(document.getElementById("med-qty").value);
+            const price = parseFloat(document.getElementById("med-price").value);
+            if (name && qty > 0 && price >= 0) {
+                medicines.push({name, qty, price});
+                localStorage.setItem("medicines", JSON.stringify(medicines));
+                renderStock();
+                document.getElementById("med-name").value = "";
+                document.getElementById("med-qty").value = "";
+                document.getElementById("med-price").value = "";
+            } else {
+                alert("Please enter valid medicine details.");
+            }
+        }
+    </script>
+</body>
+</html>
